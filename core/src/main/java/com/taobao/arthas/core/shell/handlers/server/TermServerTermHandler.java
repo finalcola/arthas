@@ -16,6 +16,7 @@ public class TermServerTermHandler implements Handler<Term> {
 
     @Override
     public void handle(Term term) {
+        // 处理用户输入
         shellServer.handleTerm(term);
     }
 }

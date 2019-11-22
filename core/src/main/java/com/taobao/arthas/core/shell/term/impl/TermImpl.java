@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 封装命令行的上下文信息
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class TermImpl implements Term {
@@ -48,6 +49,7 @@ public class TermImpl implements Term {
     public TermImpl(Keymap keymap, TtyConnection conn) {
         this.conn = conn;
         readline = new Readline(keymap);
+        // 加载历史命令
         readline.setHistory(FileUtils.loadCommandHistory(new File(Constants.CMD_HISTORY_FILE)));
         for (Function function : readlineFunctions) {
             readline.addFunction(function);
@@ -55,6 +57,7 @@ public class TermImpl implements Term {
 
         echoHandler = new DefaultTermStdinHandler(this);
         conn.setStdinHandler(echoHandler);
+        // 处理事件的handler
         conn.setEventHandler(new EventHandler(this));
     }
 

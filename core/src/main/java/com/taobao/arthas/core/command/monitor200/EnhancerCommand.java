@@ -57,12 +57,14 @@ public abstract class EnhancerCommand extends AnnotatedCommand {
 
     @Override
     public void process(final CommandProcess process) {
+        // 退出时会注销监听器
         // ctrl-C support
         process.interruptHandler(new CommandInterruptHandler(process));
         // q exit support
         process.stdinHandler(new QExitHandler(process));
 
         // start to enhance
+        // 织入字节码增强
         enhance(process);
     }
 
@@ -90,14 +92,17 @@ public abstract class EnhancerCommand extends AnnotatedCommand {
 
     protected void enhance(CommandProcess process) {
         Session session = process.session();
+        // 获取锁失败，提示后返回
         if (!session.tryLock()) {
             process.write("someone else is enhancing classes, pls. wait.\n");
             process.end();
             return;
         }
+        // adviceId
         int lock = session.getLock();
         try {
             Instrumentation inst = session.getInstrumentation();
+            // 获取监听器
             AdviceListener listener = getAdviceListener(process);
             if (listener == null) {
                 warn(process, "advice listener is null");
@@ -108,9 +113,11 @@ public abstract class EnhancerCommand extends AnnotatedCommand {
                 skipJDKTrace = ((AbstractTraceAdviceListener) listener).getCommand().isSkipJDKTrace();
             }
 
-            EnhancerAffect effect = Enhancer.enhance(inst, lock, listener instanceof InvokeTraceable,
+            // 增强
+            EnhancerAffect effect = Enhancer.enhance(inst, lock, listener instanceof InvokeTraceable/*isTracing*/,
                     skipJDKTrace, getClassNameMatcher(), getMethodNameMatcher());
 
+            // 影响的类个数和方法个数为0
             if (effect.cCnt() == 0 || effect.mCnt() == 0) {
                 // no class effected
                 // might be method code too large

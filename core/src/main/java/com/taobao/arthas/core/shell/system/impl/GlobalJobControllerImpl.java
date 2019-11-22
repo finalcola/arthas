@@ -54,6 +54,7 @@ public class GlobalJobControllerImpl extends JobControllerImpl {
 
     @Override
     public Job createJob(InternalCommandManager commandManager, List<CliToken> tokens, ShellImpl shell) {
+        // 根据命令获取对应的command，封装为Process，再封装为Job
         final Job job = super.createJob(commandManager, tokens, shell);
 
         /*

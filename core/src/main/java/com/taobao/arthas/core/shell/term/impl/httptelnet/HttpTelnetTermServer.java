@@ -50,6 +50,7 @@ public class HttpTelnetTermServer extends TermServer {
             bootstrap.start(new Consumer<TtyConnection>() {
                 @Override
                 public void accept(final TtyConnection conn) {
+                    // 会委托到SehllServerImpl进行处理
                     termHandler.handle(new TermImpl(Helper.loadKeymap(), conn));
                 }
             }).get(connectionTimeout, TimeUnit.MILLISECONDS);

@@ -31,6 +31,7 @@ class CompletionHandler implements Consumer<Completion> {
         try {
             final String line = io.termd.core.util.Helper.fromCodePoints(completion.line());
             final List<CliToken> tokens = Collections.unmodifiableList(CliTokens.tokenize(line));
+            // 封装tremd Completion
             com.taobao.arthas.core.shell.cli.Completion comp = new CompletionAdaptor(line, tokens, completion, session);
             completionHandler.handle(comp);
         } catch (Throwable t) {

@@ -157,7 +157,7 @@ public class Enhancer implements ClassFileTransformer {
 
             };
 
-            // 生成增强字节码
+            // 生成增强字节码（会调用Spy相关的方法）
             cr.accept(new AdviceWeaver(adviceId, isTracing, skipJDKTrace, cr.getClassName(), methodNameMatcher, affect,
                             cw), EXPAND_FRAMES);
             final byte[] enhanceClassByteArray = cw.toByteArray();
@@ -225,8 +225,8 @@ public class Enhancer implements ClassFileTransformer {
         while (it.hasNext()) {
             final Class<?> clazz = it.next();
             if (null == clazz
-                    || isSelf(clazz)
-                    || isUnsafeClass(clazz)
+                    || isSelf(clazz)/*过滤arthas加载的类*/
+                    || isUnsafeClass(clazz)/*过滤部分jvm加载的类*/
                     || isUnsupportedClass(clazz)) {
                 it.remove();
             }
@@ -242,7 +242,7 @@ public class Enhancer implements ClassFileTransformer {
     }
 
     /**
-     * 是否过滤unsafe类
+     * 是否过滤unsafe类（JVM的部分类）
      */
     private static boolean isUnsafeClass(Class<?> clazz) {
         return !GlobalOptions.isUnsafe

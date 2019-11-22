@@ -129,10 +129,12 @@ public class ArthasBootstrap {
                 options.setWelcomeMessage(ArthasBanner.welcome(welcomeInfos));
             }
             shellServer = new ShellServerImpl(options, this);
+            // 命令行打包
             BuiltinCommandPack builtinCommands = new BuiltinCommandPack();
             List<CommandResolver> resolvers = new ArrayList<CommandResolver>();
             resolvers.add(builtinCommands);
             // TODO: discover user provided command resolver
+            // 添加服务器实例
             if (configure.getTelnetPort() > 0) {
                 shellServer.registerTermServer(new HttpTelnetTermServer(configure.getIp(), configure.getTelnetPort(),
                                 options.getConnectionTimeout()));
@@ -150,6 +152,7 @@ public class ArthasBootstrap {
                 shellServer.registerCommandResolver(resolver);
             }
 
+            // 监听端口
             shellServer.listen(new BindHandler(isBindRef));
 
             logger.info("as-server listening on network={};telnet={};http={};timeout={};", configure.getIp(),

@@ -78,7 +78,9 @@ public class AnnotatedCommandImpl extends Command {
             process.end();
             return;
         }
+        // 将解析好的参数设置到实例
         CLIConfigurator.inject(process.commandLine(), instance);
+        // 处理命令
         instance.process(process);
         UserStatUtil.arthasUsageSuccess(name(), process.args());
     }

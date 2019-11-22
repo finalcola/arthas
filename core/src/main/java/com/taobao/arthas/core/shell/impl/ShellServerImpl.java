@@ -88,6 +88,7 @@ public class ShellServerImpl extends ShellServer {
         return this;
     }
 
+    // 处理命令行输入
     public void handleTerm(Term term) {
         synchronized (this) {
             // That might happen with multiple ser
@@ -97,11 +98,14 @@ public class ShellServerImpl extends ShellServer {
             }
         }
 
+        // 创建shell session并初始化
         ShellImpl session = createShell(term);
         session.setWelcome(welcomeMessage);
         session.closedFuture.setHandler(new SessionClosedHandler(this, session));
+        // 为term设置handler
         session.init();
         sessions.put(session.id, session); // Put after init so the close handler on the connection is set
+        // 读取命令行
         session.readline(); // Now readline
     }
 
@@ -120,9 +124,10 @@ public class ShellServerImpl extends ShellServer {
             listenHandler.handle(Future.<Void>succeededFuture());
             return this;
         }
+        // 启动server并通知listenHandler
         Handler<Future<TermServer>> handler = new TermServerListenHandler(this, listenHandler, toStart);
         for (TermServer termServer : toStart) {
-            termServer.termHandler(new TermServerTermHandler(this));
+            termServer.termHandler(new TermServerTermHandler(this)/*委托给当前对象处理*/);
             termServer.listen(handler);
         }
         return this;

@@ -859,9 +859,11 @@ public class AdviceWeaver extends ClassVisitor implements Opcodes {
             }
 
 
+            // 访问无参数字节码
             @Override
             public void visitInsn(int opcode) {
                 super.visitInsn(opcode);
+                // 访问字节码，检查是否需要修改isLock
                 codeLockForTracing.code(opcode);
             }
 
@@ -928,13 +930,15 @@ public class AdviceWeaver extends ClassVisitor implements Opcodes {
 
             }
 
+            // 方法方法指令时调用：INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
             @Override
             public void visitMethodInsn(int opcode, final String owner, final String name, final String desc, boolean itf) {
+                // 父类或当前类的构造方法
                 if (isSuperOrSiblingConstructorCall(opcode, owner, name)) {
                     super.visitMethodInsn(opcode, owner, name, desc, itf);
                     return;
                 }
-
+                // 非跟踪方法调用 或 代码锁
                 if (!isTracing || codeLockForTracing.isLock()) {
                     super.visitMethodInsn(opcode, owner, name, desc, itf);
                     return;

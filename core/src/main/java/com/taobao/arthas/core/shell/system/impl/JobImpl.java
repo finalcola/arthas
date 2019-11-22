@@ -204,6 +204,7 @@ public class JobImpl implements Job {
         }
         process.setTty(shell.term());
         process.setSession(shell.session());
+        // 执行process
         process.run(foreground);
 
         if (!foreground && foregroundUpdatedHandler != null) {

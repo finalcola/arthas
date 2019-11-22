@@ -12,6 +12,7 @@ import com.taobao.arthas.core.util.TokenUtils;
 import java.util.List;
 
 /**
+ * 处理shell命令
  * @author beiwei30 on 23/11/2016.
  */
 public class ShellLineHandler implements Handler<String> {
@@ -32,8 +33,10 @@ public class ShellLineHandler implements Handler<String> {
             return;
         }
 
+        // 解析命令行输入
         List<CliToken> tokens = CliTokens.tokenize(line);
         CliToken first = TokenUtils.findFirstTextToken(tokens);
+        // 未读取到文本
         if (first == null) {
             // For now do like this
             shell.readline();
@@ -58,6 +61,7 @@ public class ShellLineHandler implements Handler<String> {
             return;
         }
 
+        // 创建任务执行
         Job job = createJob(tokens);
         if (job != null) {
             job.run();
@@ -77,6 +81,7 @@ public class ShellLineHandler implements Handler<String> {
         return result;
     }
 
+    // 根据输入的命令行创建任务执行
     private Job createJob(List<CliToken> tokens) {
         Job job;
         try {

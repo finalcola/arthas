@@ -58,15 +58,20 @@ public class JobControllerImpl implements JobController {
 
     @Override
     public Job createJob(InternalCommandManager commandManager, List<CliToken> tokens, ShellImpl shell) {
+        // 任务id
         int jobId = idGenerator.incrementAndGet();
+        // 完整命令
         StringBuilder line = new StringBuilder();
         for (CliToken arg : tokens) {
             line.append(arg.raw());
         }
+        // 最后一个token是否是"&"
         boolean runInBackground = runInBackground(tokens);
+        // 创建process
         Process process = createProcess(tokens, commandManager, jobId, shell.term());
         process.setJobId(jobId);
-        JobImpl job = new JobImpl(jobId, this, process, line.toString(), runInBackground, shell);
+        // 封装为job
+        JobImpl job = new JobImpl(jobId, this/*handler*/, process, line.toString(), runInBackground, shell);
         jobs.put(jobId, job);
         return job;
     }
@@ -127,8 +132,10 @@ public class JobControllerImpl implements JobController {
             while (tokens.hasNext()) {
                 CliToken token = tokens.next();
                 if (token.isText()) {
+                    // 获取对应的command对象
                     Command command = commandManager.getCommand(token.value());
                     if (command != null) {
+                        // 封装为Process
                         return createCommandProcess(command, tokens, jobId, term);
                     } else {
                         throw new IllegalArgumentException(token.value() + ": command not found");
@@ -151,6 +158,7 @@ public class JobControllerImpl implements JobController {
         return runInBackground;
     }
 
+    // 将command对象、tokens、term封装为proccess
     private Process createCommandProcess(Command command, ListIterator<CliToken> tokens, int jobId, Term term) throws IOException {
         List<CliToken> remaining = new ArrayList<CliToken>();
         List<CliToken> pipelineTokens = new ArrayList<CliToken>();
@@ -158,6 +166,7 @@ public class JobControllerImpl implements JobController {
         RedirectHandler redirectHandler = null;
         List<Function<String, String>> stdoutHandlerChain = new ArrayList<Function<String, String>>();
         String cacheLocation = null;
+        // 处理 | 和 >>\> 命令
         while (tokens.hasNext()) {
             CliToken remainingToken = tokens.next();
             if (remainingToken.isText()) {
@@ -198,7 +207,7 @@ public class JobControllerImpl implements JobController {
             }
         }
         ProcessOutput ProcessOutput = new ProcessOutput(stdoutHandlerChain, cacheLocation, term);
-        return new ProcessImpl(command, remaining, command.processHandler(), ProcessOutput);
+        return new ProcessImpl(command, remaining, command.processHandler()/*使用command.handler处理命令*/, ProcessOutput);
     }
 
     private String getRedirectFileName(ListIterator<CliToken> tokens) {

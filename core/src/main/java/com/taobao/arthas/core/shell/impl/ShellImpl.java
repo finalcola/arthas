@@ -46,6 +46,7 @@ public class ShellImpl implements Shell {
     private Term term;
     private String welcome;
     private Job currentForegroundJob;
+    // 命令行左侧的提示文字
     private String prompt;
 
     public ShellImpl(ShellServer server, Term term, InternalCommandManager commandManager,
@@ -152,6 +153,7 @@ public class ShellImpl implements Shell {
         return sb.toString();
     }
 
+    // 读取命令行
     public void readline() {
         term.readline(prompt, new ShellLineHandler(this),
                 new CommandManagerCompletionHandler(commandManager));

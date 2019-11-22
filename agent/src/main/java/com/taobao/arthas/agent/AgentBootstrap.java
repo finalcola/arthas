@@ -34,6 +34,7 @@ public class AgentBootstrap {
 
     private static PrintStream ps = System.err;
     static {
+        // 创建日志文件和输出流
         try {
             File arthasLogDir = new File(System.getProperty("user.home") + File.separator + "logs" + File.separator
                     + "arthas" + File.separator);
@@ -121,6 +122,7 @@ public class AgentBootstrap {
                 return;
             }
 
+            // 加载arthas-spy.jar
             File spyJarFile = new File(agentJarFile.getParentFile(), ARTHAS_SPY_JAR);
             if (!spyJarFile.exists()) {
                 ps.println("Spy jar file does not exist: " + spyJarFile);
@@ -169,9 +171,11 @@ public class AgentBootstrap {
          * </pre>
          */
         Class<?> classOfConfigure = agentLoader.loadClass(ARTHAS_CONFIGURE);
+        // 反序列化为Configure对象
         Object configure = classOfConfigure.getMethod(TO_CONFIGURE, String.class).invoke(null, args);
         int javaPid = (Integer) classOfConfigure.getMethod(GET_JAVA_PID).invoke(configure);
         Class<?> bootstrapClass = agentLoader.loadClass(ARTHAS_BOOTSTRAP);
+        // 创建ArthasBootstrap对象
         Object bootstrap = bootstrapClass.getMethod(GET_INSTANCE, int.class, Instrumentation.class).invoke(null, javaPid, inst);
         boolean isBind = (Boolean) bootstrapClass.getMethod(IS_BIND).invoke(bootstrap);
         if (!isBind) {

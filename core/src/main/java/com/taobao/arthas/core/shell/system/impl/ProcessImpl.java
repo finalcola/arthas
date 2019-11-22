@@ -246,6 +246,7 @@ public class ProcessImpl implements Process {
             }
             updateStatus(ExecStatus.TERMINATED, exitCode, false, endHandler, terminatedHandler, completionHandler);
             if (process != null) {
+                // 注销监听器
                 process.unregister();
             }
             return true;
@@ -307,6 +308,7 @@ public class ProcessImpl implements Process {
             throw new IllegalStateException("Cannot run proces in " + processStatus + " state");
         }
 
+        // 修改状态
         processStatus = ExecStatus.RUNNING;
         processForeground = fg;
         foreground = fg;
@@ -318,6 +320,7 @@ public class ProcessImpl implements Process {
             throw new IllegalStateException("Cannot execute process without a TTY set");
         }
 
+        // 参数
         final List<String> args2 = new LinkedList<String>();
         for (CliToken arg : args) {
             if (arg.isText()) {
@@ -325,6 +328,7 @@ public class ProcessImpl implements Process {
             }
         }
 
+        // 解析参数
         CommandLine cl = null;
         try {
             if (commandContext.cli() != null) {
@@ -347,6 +351,7 @@ public class ProcessImpl implements Process {
             return;
         }
 
+        // 执行任务（内部会使用handler处理）
         process = new CommandProcessImpl(args2, tty, cl);
         if (cacheLocation() != null) {
             process.echoTips("job id  : " + this.jobId + "\n");
@@ -530,6 +535,7 @@ public class ProcessImpl implements Process {
 
         @Override
         public void unregister() {
+            // 注销监听器
             AdviceWeaver.unReg(enhanceLock);
         }
 

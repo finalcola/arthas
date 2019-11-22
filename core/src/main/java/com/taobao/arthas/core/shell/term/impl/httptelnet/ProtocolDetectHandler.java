@@ -22,7 +22,8 @@ import io.termd.core.tty.TtyConnection;
 /**
  * 
  * @author hengyunabc 2019-11-04
- *
+ * netty handler,负责新连接建立后，将channel添加到channelGroup
+ * 该handler负责检查连接的协议（talnet or ws），并添加对应的handler到pipeline
  */
 public class ProtocolDetectHandler extends ChannelInboundHandlerAdapter {
     private ChannelGroup channelGroup;
@@ -44,6 +45,8 @@ public class ProtocolDetectHandler extends ChannelInboundHandlerAdapter {
             @Override
             public void run() {
                 channelGroup.add(ctx.channel());
+                // 添加TelnetChannelHandler到pipeline
+                // TelnetChannelHandler内部根据handlerFactory创建负责处理请求的handler
                 TelnetChannelHandler handler = new TelnetChannelHandler(handlerFactory);
                 ChannelPipeline pipeline = ctx.pipeline();
                 pipeline.addLast(handler);
