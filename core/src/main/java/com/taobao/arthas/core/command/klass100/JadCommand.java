@@ -147,12 +147,15 @@ public class JadCommand extends AnnotatedCommand {
         allClasses.add(c);
 
         try {
+            // retransform,将字节码写入缓存文件,并不会进行字节码增强
             ClassDumpTransformer transformer = new ClassDumpTransformer(allClasses);
             retransformClasses(inst, transformer, allClasses);
 
+            // 获取缓存的字节码
             Map<Class<?>, File> classFiles = transformer.getDumpResult();
             File classFile = classFiles.get(c);
 
+            // 反编译
             String source = Decompiler.decompile(classFile.getAbsolutePath(), methodName);
             if (source != null) {
                 source = pattern.matcher(source).replaceAll("");
